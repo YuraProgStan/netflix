@@ -1,14 +1,33 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import './featured.scss';
 import {InfoOutlined, PlayArrow} from "@mui/icons-material";
 
-const Featured = ({type}) => {
+import {movieService} from "../../services/movie.service";
+
+const Featured = ({type, setGenre}) => {
+    const [content, setContent] = useState({});
+    useEffect(() => {
+        const controller = new AbortController();
+        const getRandomContent = async () =>{
+            try{
+                const res = await movieService.getRandom(type);
+                setContent(res.data[0])
+            }catch(err){
+                console.log(err)
+            }
+        };
+        getRandomContent()
+        return () => {
+            controller.abort();
+            setContent({})
+        }
+    }, [type])
     return (
         <div className="featured">
             {type && (
                 <div className="category">
-                    <span>{type === "movie" ? "Movies" : "Series"}</span>
-                    <select name="genre" id="genre">
+                    <span>{type === "movies" ? "Movies" : "Series"}</span>
+                    <select name="genre" id="genre" onChange={(e) => setGenre(e.target.value)}>
                         <option>Genre</option>
                         <option value="adventure">Adventure</option>
                         <option value="comedy">Comedy</option>
@@ -29,15 +48,15 @@ const Featured = ({type}) => {
 
             }
             <img
-                src="https://images.pexels.com/photos/6899260/pexels-photo-6899260.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
-                alt=""
+                src={content.img}
+                alt={content.title}
             />
             <div className="info">
                 <img
-                    src="https://occ-0-1432-1433.1.nflxso.net/dnm/api/v6/LmEnxtiAuzezXBjYXPuDgfZ4zZQ/AAAABUZdeG1DrMstq-YKHZ-dA-cx2uQN_YbCYx7RABDk0y7F8ZK6nzgCz4bp5qJVgMizPbVpIvXrd4xMBQAuNe0xmuW2WjoeGMDn1cFO.webp?r=df1"
-                    alt=""
+                    src={content.imgTitle}
+                    alt={content.title}
                 />
-                <span className="desc">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Enim harum illo minus repudiandae sed? Accusamus distinctio, ex in incidunt nulla voluptatum. Aliquid, dolore dolorem hic necessitatibus omnis quaerat tempora tempore.</span>
+                <span className="desc">{content.desc}</span>
                 <div className="buttons">
                     <button className="play">
                         <PlayArrow/>

@@ -1,17 +1,36 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import "./register.scss"
+import {authService} from "../../services/auth.service";
+import {useNavigate} from "react-router-dom";
 
 const Register = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const navigate = useNavigate();
     const emailRef = useRef();
     const passwordRef = useRef();
+    const usernameRef = useRef();
     const handleStart = () => {
         setEmail(emailRef.current.value);
     }
-    const handleFinish = () => {
+
+    useEffect(() => {
+        const register = async () => {
+            try {
+                await authService.register({email, username, password});
+                navigate('/login');
+
+            } catch (err) {
+
+            }
+        }
+        register()
+    }, [password])
+    const handleFinish = async (e) => {
+        e.preventDefault();
+        setUsername(usernameRef.current.value);
         setPassword(passwordRef.current.value);
-        passwordRef.current.value = "";
     }
     return (
         <div className="register">
@@ -22,7 +41,7 @@ const Register = () => {
                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png"
                         alt=""
                     />
-                    <button className="loginButton">Sign In</button>
+                    <button onClick={() => navigate('/login')} className="loginButton">Sign In</button>
                 </div>
 
             </div>
@@ -35,15 +54,18 @@ const Register = () => {
                 {
                     !email
                         ? (
-                        <div className="input">
-                            <input ref={emailRef}  type="email" placeholder="email address" />
-                            <button className="registerButton" onClick={handleStart}>Get Started</button>
-                        </div>
-                    )
-                        :(
-                            <form className="input">
-                                <input ref={passwordRef}  type="password" placeholder="password" />
-                                <button className="registerButton" onClick={handleFinish}>Start</button>
+                            <div className="input">
+                                <input ref={emailRef} type="email" placeholder="email address"/>
+                                <button className="registerButton" onClick={handleStart}>Get Started</button>
+                            </div>
+                        )
+                        : (
+                            <form className="input" onSubmit={handleFinish}>
+                                <input ref={usernameRef} type="username" placeholder="username" name="username"/>
+                                <input ref={passwordRef} type="password" placeholder="password" name="password"/>
+                                <button type="submit" className="registerButton">
+                                    Start
+                                </button>
                             </form>
                         )
                 }

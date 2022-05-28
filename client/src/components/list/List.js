@@ -2,10 +2,12 @@ import React, {useRef, useState} from 'react';
 import './list.scss';
 import {ArrowBackIosNewOutlined, ArrowForwardIosOutlined} from "@mui/icons-material";
 import ListItem from "../listItem/ListItem";
+import {v4 as uuid } from 'uuid';
 
-const List = () => {
+const List = ({list}) => {
     const [isMoved, setIsMoved] = useState(false);
     const [slideNumber, setSlideNumber] = useState(0);
+    const [clickLimit, setClickLimit] = useState(window.innerWidth/230);
     const listRef = useRef();
     const handleClick = (direction) => {
         setIsMoved(true)
@@ -14,14 +16,14 @@ const List = () => {
             setSlideNumber(slideNumber - 1)
             listRef.current.style.transform =`translateX(${230+distance}px)`
         }
-        if (direction === "right"  && slideNumber<5) {
+        if (direction === "right"  && slideNumber< 10 - clickLimit) {
             setSlideNumber(slideNumber + 1)
             listRef.current.style.transform =`translateX(${-230+distance}px)`
         }
     }
     return (
         <div className="list">
-            <span className="listTitle">Continue to watch</span>
+            <span className="listTitle">{list.title}</span>
             <div className="wrapper">
                 <ArrowBackIosNewOutlined
                     className="sliderArrow left"
@@ -29,16 +31,10 @@ const List = () => {
                     style = {{display: !isMoved && "none"}}
                 />
                 <div className="container" ref={listRef}>
-                    <ListItem index = {0} />
-                    <ListItem index = {1} />
-                    <ListItem index = {2} />
-                    <ListItem index = {3} />
-                    <ListItem index = {4} />
-                    <ListItem index = {5} />
-                    <ListItem index = {6} />
-                    <ListItem index = {7} />
-                    <ListItem index = {8} />
-                    <ListItem index = {9} />
+                    {list.content.map((item, i) => (
+                        <ListItem key={uuid()} index = {i} item= {item} />
+                    ))}
+
                 </div>
                 <ArrowForwardIosOutlined className="sliderArrow right" onClick={() => handleClick("right")}/>
             </div>
